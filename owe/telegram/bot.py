@@ -11,11 +11,11 @@ logging.basicConfig(
 )
 
 class TGBot:
-    def __init__(self) -> None:
+    def __init__(self, agent_preset_prompt: str) -> None:
 
         # Owe Agent
         logging.info("Initializing Owe Agent...")
-        self.oweAgent = OweAgent()
+        self.oweAgent = OweAgent(agent_preset_prompt)
 
         # TG Application
         logging.info("Initializing TG Bot...")

@@ -11,7 +11,8 @@ class OweAgent:
     model_name = "mistralai/Mistral-7B-Instruct-v0.3"
 
     system_prompt="""
-    You are designed to solve tasks. Each task requires multiple steps that are represented by a markdown code snippet of a json blob.
+
+    The process to generate answer to the user input requires multiple steps that are represented by a markdown code snippet of a json blob.
     The json structure should contain the following keys:
     thought -> your thoughts
     action -> name of a tool
@@ -25,7 +26,6 @@ class OweAgent:
 
     If no tools are required to answer the question, use the tool "Final Answer" to give the text answer directly. Its parameters is the solution.
     If there is not enough information, try to give the final answer at your best knowledge.
-
     """
 
     human_prompt="""
@@ -45,7 +45,7 @@ class OweAgent:
     These were the previous steps given to solve this query and the information you already gathered:
     """
 
-    def __init__(self) -> None:
+    def __init__(self, agent_preset_prompt: str) -> None:
         model = AutoModelForCausalLM.from_pretrained(
             self.model_name,
             torch_dtype=torch.bfloat16,
@@ -55,7 +55,7 @@ class OweAgent:
         llm = CustomLLMMistral(model=model, tokenizer=tokenizer)
         tools = [StableDiffusionTool()]
 
-        prompt_template = self._build_prompt_template()
+        prompt_template = self._build_prompt_template(agent_preset_prompt)
 
         agent = create_json_chat_agent(
             tools=tools,
@@ -72,10 +72,10 @@ class OweAgent:
             handle_parsing_errors=True
         )
 
-    def _build_prompt_template(self) -> ChatPromptTemplate:
+    def _build_prompt_template(self, agent_preset_prompt: str) -> ChatPromptTemplate:
         return ChatPromptTemplate.from_messages(
             [
-                ("system", self.system_prompt),
+                ("system", agent_preset_prompt + self.system_prompt),
                 MessagesPlaceholder("chat_history", optional=True),
                 ("human", self.human_prompt),
                 MessagesPlaceholder("agent_scratchpad"),

@@ -44,6 +44,7 @@ class StableDiffusionTool(BaseTool):
         images = run_inference_task(
             InferenceTaskArgs.model_validate(args),
             config=Config.model_validate({
+                "deterministic": False,
                 "data_dir": {
                     "models": {
                         "huggingface": "models/huggingface",

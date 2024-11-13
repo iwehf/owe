@@ -3,8 +3,9 @@ from sd_task.task_runner import run_inference_task
 from sd_task.task_args import InferenceTaskArgs
 from sd_task.config import Config
 from sd_task.cache import MemoryModelCache
-import base64
-from io import BytesIO
+from pathlib import Path
+from datetime import datetime
+import uuid
 
 class StableDiffusionTool(BaseTool):
     name: str = "GenerateImage"
@@ -56,6 +57,12 @@ class StableDiffusionTool(BaseTool):
         )
         image = images[0]
 
-        buffered = BytesIO()
-        image.save(buffered, format="JPEG")
-        return "[image]" + base64.b64encode(buffered.getvalue()).decode("utf-8")
+        image_path = Path("persisted_data") / "images" / datetime.today().strftime('%Y-%m-%d')
+        image_path.mkdir(parents=True, exist_ok=True)
+
+        image_id = uuid.uuid4()
+        image_filename = image_path / f"{image_id}.jpg"
+
+        image.save(image_filename)
+
+        return f"[image]{image_filename}"

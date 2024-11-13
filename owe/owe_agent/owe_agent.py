@@ -4,6 +4,8 @@ from .custom_llm import CustomLLMMistral
 from .stable_diffusion_tool import StableDiffusionTool
 from langchain.agents import create_json_chat_agent, AgentExecutor
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
+from langchain_core.runnables.history import RunnableWithMessageHistory
+from langchain_community.chat_message_histories import ChatMessageHistory
 
 
 class OweAgent:
@@ -65,11 +67,22 @@ class OweAgent:
             template_tool_response="{observation}"
         )
 
-        self.agent_executor = AgentExecutor(
+        agent_executor = AgentExecutor(
             agent=agent,
             tools=tools,
             verbose=True,
-            handle_parsing_errors=True
+            handle_parsing_errors=True,
+            max_execution_time=10,
+            max_iterations=3
+        )
+
+        memory = ChatMessageHistory(session_id="test-session")
+
+        self.executor = RunnableWithMessageHistory(
+            agent_executor,
+            lambda session_id: memory,
+            input_messages_key="input",
+            history_messages_key="chat_history"
         )
 
     def _build_prompt_template(self, agent_preset_prompt: str) -> ChatPromptTemplate:
@@ -82,8 +95,8 @@ class OweAgent:
             ]
         )
 
-    def get_response(self, input: str) -> dict:
-        resp = self.agent_executor.invoke({"input": input})
+    def get_response(self, input: str, user_id: str) -> dict:
+        resp = self.executor.invoke({"input": input}, config={"configurable": {"session_id": user_id}})
         output = resp["output"]
         resp_dict = {
             "text": None,

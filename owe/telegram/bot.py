@@ -3,7 +3,8 @@ import os
 from telegram import Update
 from telegram.ext import filters, MessageHandler, ApplicationBuilder, CommandHandler, ContextTypes
 from owe.owe_agent.owe_agent import OweAgent
-import base64
+from PIL import Image
+import io
 
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -25,14 +26,17 @@ class TGBot:
 
     async def respond(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         user_input = update.message.text
-        resp = self.oweAgent.get_response(user_input)
+
+        logging.debug(f"message from user id: {context._user_id}")
+        resp = self.oweAgent.get_response(user_input, f"{context._user_id}")
 
         if resp["image"] is not None:
 
-            img_bytes = resp["image"].encode("utf-8")
-            img_data = base64.b64decode(img_bytes)
+            image = Image.open(resp["image"])
+            image_bytes = io.BytesIO()
+            image.save(image_bytes, format="JPEG")
 
-            await context.bot.send_photo(chat_id=update.effective_chat.id, photo=img_data)
+            await context.bot.send_photo(chat_id=update.effective_chat.id, photo=image_bytes.getvalue())
         elif resp["text"] is not None:
             await context.bot.send_message(chat_id=update.effective_chat.id, text=resp["text"])
 

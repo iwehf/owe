@@ -1,5 +1,5 @@
 from .remote_llm import RemoteLLM
-from .stable_diffusion_tool import StableDiffusionTool
+from .remote_sd_tool import RemoteSDTool
 from langchain.agents import create_json_chat_agent, AgentExecutor
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.runnables.history import RunnableWithMessageHistory
@@ -45,7 +45,7 @@ class OweAgent:
     def __init__(self, agent_preset_prompt: str) -> None:
 
         llm = RemoteLLM()
-        tools = [StableDiffusionTool()]
+        tools = [RemoteSDTool()]
 
         prompt_template = self._build_prompt_template(agent_preset_prompt)
 
@@ -62,7 +62,7 @@ class OweAgent:
             tools=tools,
             verbose=True,
             handle_parsing_errors=True,
-            max_execution_time=30,
+            max_execution_time=300,
             max_iterations=5
         )
 

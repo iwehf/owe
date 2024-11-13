@@ -9,8 +9,9 @@
 $ python run.py
 ```
 
-### Start the worker
+### Start the workers
 
 ```bash
-$ celery -A owe.owe_agent.worker worker --loglevel=INFO
+$ celery -A owe.owe_agent.worker worker --loglevel=INFO --queues=llm --pool=threads
+$ celery -A owe.owe_agent.worker worker --loglevel=INFO --queues=sd --pool=threads
 ```

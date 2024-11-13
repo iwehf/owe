@@ -1,28 +1,19 @@
-from langchain.tools import BaseTool
+from .celery import app
 from sd_task.task_runner import run_inference_task
 from sd_task.task_args import InferenceTaskArgs
 from sd_task.config import Config
 from sd_task.cache import MemoryModelCache
-from pathlib import Path
-from datetime import datetime
-import uuid
+import base64
+from io import BytesIO
 
-class StableDiffusionTool(BaseTool):
-    name: str = "GenerateImage"
-    description: str =  (
-        "Useful for when you need to generate an image using text prompt."
-        "Input: A string as detailed text-2-image prompt describing the image. The string should be created from the user input, should be as detailed as possible, every element in the image, the shape, color, position of the element, the background."
-        "Output: the base64 encoded string of the image"
-    )
-    return_direct: bool = True
 
+class SDRunner:
     model_cache: MemoryModelCache = None
 
     def __init__(self):
-        super().__init__()
         self.model_cache = MemoryModelCache()
 
-    def _run(self, prompt: str) -> str:
+    def invoke(self, prompt: str) -> str:
 
         args = {
             "version": "2.0.0",
@@ -56,13 +47,19 @@ class StableDiffusionTool(BaseTool):
             model_cache=self.model_cache
         )
         image = images[0]
+        buffered = BytesIO()
+        image.save(buffered, format="JPEG")
+        return base64.b64encode(buffered.getvalue()).decode("utf-8")
 
-        image_path = Path("persisted_data") / "images" / datetime.today().strftime('%Y-%m-%d')
-        image_path.mkdir(parents=True, exist_ok=True)
 
-        image_id = uuid.uuid4()
-        image_filename = image_path / f"{image_id}.jpg"
+runner: SDRunner = None
 
-        image.save(image_filename)
+def get_runner() -> SDRunner:
+    global runner
+    if runner is None:
+      runner = SDRunner()
+    return runner
 
-        return f"[image]{image_filename}"
+@app.task
+def sd(prompt: str):
+    return get_runner().invoke(prompt)

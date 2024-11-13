@@ -9,3 +9,4 @@ load_dotenv("persisted_data/.env")
 
 from .celery import app
 from .llm_task import llm
+from .sd_task import sd

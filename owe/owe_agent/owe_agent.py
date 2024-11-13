@@ -1,16 +1,11 @@
-import torch
-from transformers import AutoModelForCausalLM, AutoTokenizer
-from .custom_llm import CustomLLMMistral
+from .remote_llm import RemoteLLM
 from .stable_diffusion_tool import StableDiffusionTool
 from langchain.agents import create_json_chat_agent, AgentExecutor
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.runnables.history import RunnableWithMessageHistory
 from langchain_community.chat_message_histories import ChatMessageHistory
 
-
 class OweAgent:
-
-    model_name = "mistralai/Mistral-7B-Instruct-v0.3"
 
     system_prompt="""
 
@@ -48,13 +43,8 @@ class OweAgent:
     """
 
     def __init__(self, agent_preset_prompt: str) -> None:
-        model = AutoModelForCausalLM.from_pretrained(
-            self.model_name,
-            torch_dtype=torch.bfloat16,
-            cache_dir="models/huggingface").to("cuda")
 
-        tokenizer = AutoTokenizer.from_pretrained(self.model_name)
-        llm = CustomLLMMistral(model=model, tokenizer=tokenizer)
+        llm = RemoteLLM()
         tools = [StableDiffusionTool()]
 
         prompt_template = self._build_prompt_template(agent_preset_prompt)
@@ -72,8 +62,8 @@ class OweAgent:
             tools=tools,
             verbose=True,
             handle_parsing_errors=True,
-            max_execution_time=10,
-            max_iterations=3
+            max_execution_time=30,
+            max_iterations=5
         )
 
         memory = ChatMessageHistory(session_id="test-session")
@@ -95,8 +85,8 @@ class OweAgent:
             ]
         )
 
-    def get_response(self, input: str, user_id: str) -> dict:
-        resp = self.executor.invoke({"input": input}, config={"configurable": {"session_id": user_id}})
+    async def get_response(self, input: str, user_id: str) -> dict:
+        resp = await self.executor.ainvoke({"input": input}, config={"configurable": {"session_id": user_id}})
         output = resp["output"]
         resp_dict = {
             "text": None,

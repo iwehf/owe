@@ -23,8 +23,8 @@ class OweAgent:
 
     {tools}
 
-    If you have enough information to answer the query use the tool "Final Answer". Its parameters is the solution.
-    If there is not enough information, keep trying.
+    If no tools are required to answer the question, use the tool "Final Answer" to give the text answer directly. Its parameters is the solution.
+    If there is not enough information, try to give the final answer at your best knowledge.
 
     """
 

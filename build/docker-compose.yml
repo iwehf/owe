@@ -1,0 +1,29 @@
+---
+services:
+  redis:
+    image: redis:7.4.1-alpine
+    restart: always
+    ports:
+      - '6379:6379'
+    command: redis-server --loglevel warning --requirepass oweredis
+  server:
+    image: owe:dev
+    restart: always
+    command: python run.py
+    volumes:
+      - "./persisted_data:/app/persisted_data"
+      - "./models:/app/models"
+  worker_llm:
+    image: owe:dev
+    restart: always
+    command: celery -A owe.owe_agent.worker worker --loglevel=INFO --queues=llm --pool=threads
+    volumes:
+      - "./persisted_data:/app/persisted_data"
+      - "./models:/app/models"
+  # worker_sd:
+  #   image: owe:dev
+  #   restart: always
+  #   command: celery -A owe.owe_agent.worker worker --loglevel=INFO --queues=sd --pool=threads
+  #   volumes:
+  #     - "./persisted_data:/app/persisted_data"
+  #     - "./models:/app/models"

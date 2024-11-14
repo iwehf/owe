@@ -17,19 +17,15 @@ class SDRunner:
 
         args = {
             "version": "2.0.0",
-            "base_model": "crynux-ai/sdxl-turbo",
+            "base_model": {
+                "name": "https://civitai.com/api/download/models/127305?type=Model&format=SafeTensor&size=pruned&fp=fp16"
+            },
             "prompt": prompt,
             "negative_prompt": "",
             "task_config": {
                 "num_images": 1,
-                "steps": 1,
-                "cfg": 0
-            },
-            "scheduler": {
-                "method": "EulerAncestralDiscreteScheduler",
-                "args": {
-                    "timestep_spacing": "trailing"
-                }
+                "steps": 40,
+                "cfg": 3.5
             }
         }
 

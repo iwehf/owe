@@ -9,11 +9,10 @@ COPY . /app
 WORKDIR /app
 
 RUN python3 -m venv venv
-RUN . ./venv/bin/activate
-RUN pip install -r requirements.txt
+RUN . ./venv/bin/activate && pip install -r requirements.txt
 
 WORKDIR /app/stable-diffusion-task
-RUN pip install -r requirements_cuda.txt
-RUN pip install .
+RUN . ./venv/bin/activate && pip install -r requirements_cuda.txt
+RUN . ./venv/bin/activate && pip install .
 
 WORKDIR /app

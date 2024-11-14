@@ -8,6 +8,7 @@ COPY . /app
 
 WORKDIR /app
 RUN pip install -r requirements.txt
+RUN pip install .
 
 WORKDIR /app/stable-diffusion-task
 RUN pip install -r requirements_cuda.txt

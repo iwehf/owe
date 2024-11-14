@@ -1,27 +1,44 @@
 ---
+name: owe
 services:
   redis:
     image: redis:7.4.1-alpine
+    container_name: redis
     restart: always
     ports:
       - '6379:6379'
     command: redis-server --loglevel warning --requirepass oweredis
   server:
     image: owe:dev
+    container_name: owe_server
     restart: always
-    command: python run.py
+    command: python3 run.py
     volumes:
       - "./persisted_data:/app/persisted_data"
       - "./models:/app/models"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              capabilities: [gpu]
   worker_llm:
     image: owe:dev
+    container_name: owe_worker_llm
     restart: always
     command: celery -A owe.owe_agent.worker worker --loglevel=INFO --queues=llm --pool=threads
     volumes:
       - "./persisted_data:/app/persisted_data"
       - "./models:/app/models"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              capabilities: [gpu]
   # worker_sd:
   #   image: owe:dev
+  #   container_name: owe_worker_sd
   #   restart: always
   #   command: celery -A owe.owe_agent.worker worker --loglevel=INFO --queues=sd --pool=threads
   #   volumes:

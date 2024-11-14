@@ -7,11 +7,13 @@ RUN apt install python3 python3-pip python3-venv python3-opencv libopencv-dev bu
 COPY . /app
 
 WORKDIR /app
-RUN pip3 install -r requirements.txt
-RUN pip3 install .
+
+RUN python3 -m venv venv
+RUN source ./venv/bin/activate
+RUN pip install -r requirements.txt
 
 WORKDIR /app/stable-diffusion-task
-RUN pip3 install -r requirements_cuda.txt
-RUN pip3 install .
+RUN pip install -r requirements_cuda.txt
+RUN pip install .
 
 WORKDIR /app

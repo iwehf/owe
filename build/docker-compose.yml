@@ -12,7 +12,7 @@ services:
     image: owe:dev
     container_name: owe_server
     restart: always
-    command: python3 run.py
+    command: source ./venv/bin/activate && python run.py
     volumes:
       - "./persisted_data:/app/persisted_data"
       - "./models:/app/models"
@@ -26,7 +26,7 @@ services:
     image: owe:dev
     container_name: owe_worker_llm
     restart: always
-    command: celery -A owe.owe_agent.worker worker --loglevel=INFO --queues=llm --pool=threads
+    command: source ./venv/bin/activate && celery -A owe.owe_agent.worker worker --loglevel=INFO --queues=llm --pool=threads
     volumes:
       - "./persisted_data:/app/persisted_data"
       - "./models:/app/models"

@@ -18,7 +18,7 @@ class SDRunner:
         args = {
             "version": "2.0.0",
             "base_model": {
-                "name": "https://civitai.com/api/download/models/127305?type=Model&format=SafeTensor&size=pruned&fp=fp16"
+                "name": "lukewwww/lily-girl"
             },
             "prompt": prompt,
             "negative_prompt": "",

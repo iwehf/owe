@@ -12,7 +12,7 @@ RUN python3 -m venv venv
 RUN . ./venv/bin/activate && pip install -r requirements.txt
 
 WORKDIR /app/stable-diffusion-task
-RUN . ./venv/bin/activate && pip install -r requirements_cuda.txt
-RUN . ./venv/bin/activate && pip install .
+RUN . ../venv/bin/activate && pip install -r requirements_cuda.txt
+RUN . ../venv/bin/activate && pip install .
 
 WORKDIR /app

@@ -9,7 +9,7 @@ COPY . /app
 WORKDIR /app
 
 RUN python3 -m venv venv
-RUN source ./venv/bin/activate
+RUN . ./venv/bin/activate
 RUN pip install -r requirements.txt
 
 WORKDIR /app/stable-diffusion-task

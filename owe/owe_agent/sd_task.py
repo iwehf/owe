@@ -18,14 +18,16 @@ class SDRunner:
         args = {
             "version": "2.0.0",
             "base_model": {
-                "name": "lukewwww/lily-girl"
+                "name": "lukewwww/lily-girl",
+                "variant": None,
             },
             "prompt": prompt,
             "negative_prompt": "",
             "task_config": {
                 "num_images": 1,
                 "steps": 40,
-                "cfg": 3.5
+                "cfg": 3.5,
+                "safety_checker": False
             }
         }
 
@@ -53,7 +55,7 @@ runner: SDRunner = None
 def get_runner() -> SDRunner:
     global runner
     if runner is None:
-      runner = SDRunner()
+        runner = SDRunner()
     return runner
 
 @app.task

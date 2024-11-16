@@ -8,6 +8,7 @@ import logging
 from io import BytesIO
 from PIL import Image
 import base64
+from sd_task.task_args.inference_task.task_args import InferenceTaskArgs
 
 class RemoteSDTool(BaseTool):
     name: str = "GenerateImage"
@@ -18,8 +19,16 @@ class RemoteSDTool(BaseTool):
     )
     return_direct: bool = True
 
+    def __init__(self, task_args: InferenceTaskArgs):
+        super().__init__()
+        self.task_args = task_args
+
+
     def run_until_complete(self, prompt: str) -> str:
-        task = sd.apply_async((prompt,), countdown=5, expires=30)
+
+        self.task_args.prompt = prompt
+
+        task = sd.apply_async((self.task_args,), countdown=5, expires=30)
         resp = ""
 
         try:

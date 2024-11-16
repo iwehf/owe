@@ -2,21 +2,32 @@ from .celery import app
 from typing import Optional, List
 from transformers import MistralForCausalLM, LlamaTokenizerFast, AutoModelForCausalLM, AutoTokenizer
 import torch
+from .agent_config import LLMConfig
 
 class LLMRunner:
     model: MistralForCausalLM
     tokenizer: LlamaTokenizerFast
-    model_name: str = "mistralai/Mistral-7B-Instruct-v0.3"
+    model_name: str = ""
 
-    def __init__(self) -> None:
-        self.model = AutoModelForCausalLM.from_pretrained(
-            self.model_name,
-            torch_dtype=torch.bfloat16,
-            cache_dir="models/huggingface").to("cuda")
+    def load_model(self, llm_config: LLMConfig):
+       if llm_config.model_name != self.model_name:
+          self.model_name = llm_config.model_name
+          args = {
+              "torch_dtype": torch.bfloat16,
+              "cache_dir": "models/huggingface"
+          }
+          if llm_config.hf_token != "" and llm_config.hf_token is not None:
+             args["token"] = llm_config.hf_token
 
-        self.tokenizer = AutoTokenizer.from_pretrained(self.model_name)
+          self.model = AutoModelForCausalLM.from_pretrained(
+                self.model_name, **args).to("cuda")
 
-    def invoke(self, prompt: str, stop: Optional[List[str]] = None) -> str:
+          self.tokenizer = AutoTokenizer.from_pretrained(self.model_name)
+
+    def invoke(self, llm_config: LLMConfig, prompt: str, stop: Optional[List[str]] = None) -> str:
+        
+        self.load_model(llm_config)
+
         messages = [
          {"role": "user", "content": prompt},
         ]
@@ -56,5 +67,5 @@ def get_runner() -> LLMRunner:
     return runner
 
 @app.task
-def llm(prompt: str, stop: Optional[List[str]] = None):
-    return get_runner().invoke(prompt, stop)
+def llm(llm_config: LLMConfig, prompt: str, stop: Optional[List[str]] = None):
+    return get_runner().invoke(llm_config, prompt, stop)

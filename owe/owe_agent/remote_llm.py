@@ -4,6 +4,7 @@ from typing import Optional, List, Mapping, Any
 from .llm_task import llm
 import asyncio
 import logging
+from .agent_config import LLMConfig
 
 class RemoteLLM(LLM):
 
@@ -15,8 +16,11 @@ class RemoteLLM(LLM):
     def _identifying_params(self) -> Mapping[str, Any]:
         return {"model": "remote"}
 
+    def __init__(self, llm_config: LLMConfig):
+        self.llm_config = llm_config
+
     def run_until_complete(self, prompt: str, stop: Optional[List[str]] = None) -> str:
-        task = llm.apply_async((prompt, stop), countdown=5, expires=30)
+        task = llm.apply_async((self.llm_config, prompt, stop), countdown=5, expires=30)
         resp = ""
 
         try:

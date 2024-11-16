@@ -1,5 +1,6 @@
 from .remote_llm import RemoteLLM
 from .remote_sd_tool import RemoteSDTool
+from .agent_config import AgentConfig
 from langchain.agents import create_json_chat_agent, AgentExecutor
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.runnables.history import RunnableWithMessageHistory
@@ -42,12 +43,15 @@ class OweAgent:
     These were the previous steps given to solve this query and the information you already gathered:
     """
 
-    def __init__(self, agent_preset_prompt: str) -> None:
+    def __init__(self, config: AgentConfig) -> None:
 
-        llm = RemoteLLM()
-        tools = [RemoteSDTool()]
+        llm = RemoteLLM(config.llm_config)
+        sd_tool = RemoteSDTool(config.image_generation_args)
+        tools = [sd_tool]
 
-        prompt_template = self._build_prompt_template(agent_preset_prompt)
+        self.config = config
+
+        prompt_template = self._build_prompt_template(config.llm_config.prompt_preset)
 
         agent = create_json_chat_agent(
             tools=tools,

@@ -13,26 +13,10 @@ class SDRunner:
     def __init__(self):
         self.model_cache = MemoryModelCache()
 
-    def invoke(self, prompt: str) -> str:
-
-        args = {
-            "version": "2.0.0",
-            "base_model": {
-                "name": "lukewwww/lily-girl",
-                "variant": None,
-            },
-            "prompt": prompt,
-            "negative_prompt": "",
-            "task_config": {
-                "num_images": 1,
-                "steps": 40,
-                "cfg": 3.5,
-                "safety_checker": False
-            }
-        }
+    def invoke(self, task_args: InferenceTaskArgs) -> str:
 
         images = run_inference_task(
-            InferenceTaskArgs.model_validate(args),
+            task_args,
             config=Config.model_validate({
                 "deterministic": False,
                 "data_dir": {
@@ -59,5 +43,5 @@ def get_runner() -> SDRunner:
     return runner
 
 @app.task
-def sd(prompt: str):
-    return get_runner().invoke(prompt)
+def sd(task_args: InferenceTaskArgs):
+    return get_runner().invoke(task_args)

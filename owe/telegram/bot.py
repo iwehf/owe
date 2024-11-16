@@ -9,15 +9,15 @@ from pathlib import Path
 import asyncio
 
 class TGBot:
-    def __init__(self, agent_preset_prompt: str) -> None:
+    def __init__(self, agent: OweAgent, bot_token: str) -> None:
 
         # Owe Agent
         logging.info("Initializing Owe Agent...")
-        self.oweAgent = OweAgent(agent_preset_prompt)
+        self.oweAgent = agent
 
         # TG Application
         logging.info("Initializing TG Bot...")
-        self.application = ApplicationBuilder().token(os.getenv("TG_BOT_TOKEN")).build()
+        self.application = ApplicationBuilder().token(bot_token).build()
         resp_handler = MessageHandler(filters.TEXT & (~filters.COMMAND), self.respond)
         self.application.add_handler(resp_handler)
 

@@ -19,10 +19,7 @@ class RemoteSDTool(BaseTool):
     )
     return_direct: bool = True
 
-    def __init__(self, task_args: InferenceTaskArgs):
-        super().__init__()
-        self.task_args = task_args
-
+    task_args: InferenceTaskArgs
 
     def run_until_complete(self, prompt: str) -> str:
 

@@ -45,8 +45,8 @@ class OweAgent:
 
     def __init__(self, config: AgentConfig) -> None:
 
-        llm = RemoteLLM(config.llm_config)
-        sd_tool = RemoteSDTool(config.image_generation_args)
+        llm = RemoteLLM(llm_config=config.llm_config)
+        sd_tool = RemoteSDTool(task_args=config.image_generation_args)
         tools = [sd_tool]
 
         self.config = config

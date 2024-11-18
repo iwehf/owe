@@ -22,7 +22,7 @@ class LLMRunner:
           self.model = AutoModelForCausalLM.from_pretrained(
                 self.model_name, **args).to("cuda")
 
-          self.tokenizer = AutoTokenizer.from_pretrained(self.model_name)
+          self.tokenizer = AutoTokenizer.from_pretrained(self.model_name, **args)
 
     def invoke(self, llm_config: LLMConfig, prompt: str, stop: Optional[List[str]] = None) -> str:
         

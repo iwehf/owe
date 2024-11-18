@@ -43,5 +43,5 @@ def get_runner() -> SDRunner:
     return runner
 
 @app.task
-def sd(task_args: InferenceTaskArgs):
-    return get_runner().invoke(task_args)
+def sd(task_args):
+    return get_runner().invoke(InferenceTaskArgs.model_validate(task_args))

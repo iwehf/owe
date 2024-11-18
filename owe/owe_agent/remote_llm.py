@@ -19,7 +19,7 @@ class RemoteLLM(LLM):
         return {"model": "remote"}
 
     def run_until_complete(self, prompt: str, stop: Optional[List[str]] = None) -> str:
-        task = llm.apply_async((self.llm_config, prompt, stop), countdown=5, expires=30)
+        task = llm.apply_async((self.llm_config.model_dump(), prompt, stop), countdown=5, expires=30)
         resp = ""
 
         try:

@@ -67,5 +67,5 @@ def get_runner() -> LLMRunner:
     return runner
 
 @app.task
-def llm(llm_config: LLMConfig, prompt: str, stop: Optional[List[str]] = None):
-    return get_runner().invoke(llm_config, prompt, stop)
+def llm(llm_config, prompt: str, stop: Optional[List[str]] = None):
+    return get_runner().invoke(LLMConfig.model_validate(llm_config), prompt, stop)

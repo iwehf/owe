@@ -25,7 +25,7 @@ class RemoteSDTool(BaseTool):
 
         self.task_args.prompt = prompt
 
-        task = sd.apply_async((self.task_args,), countdown=5, expires=30)
+        task = sd.apply_async((self.task_args.model_dump(),), countdown=5, expires=30)
         resp = ""
 
         try:

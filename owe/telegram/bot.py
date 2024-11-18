@@ -7,24 +7,23 @@ import io
 from pathlib import Path
 import asyncio
 
-logger = logging.getLogger(__name__)
+logging.getLogger("httpx").setLevel(logging.WARNING)
 
 class TGBot:
-    def __init__(self, agent: OweAgent, bot_token: str) -> None:
+    def __init__(self, agent: OweAgent, bot_token: str, user_id: str) -> None:
 
-        # Owe Agent
-        logger.info("Initializing Owe Agent...")
+        self.logger = logging.getLogger(f"[TG Bot] [{user_id}]")
         self.oweAgent = agent
 
         # TG Application
-        logger.info("Initializing TG Bot...")
+        self.logger.info("Initializing TG Bot...")
         self.application = ApplicationBuilder().token(bot_token).build()
         resp_handler = MessageHandler(filters.TEXT & (~filters.COMMAND), self.respond)
         self.application.add_handler(resp_handler)
         self.application.add_error_handler(self.error_handler)
 
-    def error_handler(update: object, context: ContextTypes.DEFAULT_TYPE) -> None:
-        logger.error("Exception while handling an update:", exc_info=context.error)
+    def error_handler(self, update: object, context: ContextTypes.DEFAULT_TYPE) -> None:
+        self.logger.error("Exception while handling an update:", exc_info=context.error)
 
     def read_image_file(self, image_path: Path) -> bytes:
         image = Image.open(image_path)
@@ -35,7 +34,7 @@ class TGBot:
     async def respond(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         user_input = update.message.text
 
-        logger.debug(f"message from user id: {context._user_id}")
+        self.logger.debug(f"message from user id: {context._user_id}")
         resp = await self.oweAgent.get_response(user_input, f"{context._user_id}")
 
         if resp["image"] is not None:
@@ -45,5 +44,5 @@ class TGBot:
             await context.bot.send_message(chat_id=update.effective_chat.id, text=resp["text"])
 
     def start(self) -> None:
-        logger.info("Starting TG Bot...")
+        self.logger.info("Starting TG Bot...")
         self.application.run_polling()
